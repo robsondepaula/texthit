@@ -1,0 +1,559 @@
+/*
+ * App.java
+ *
+ * Created on October 9, 2006, 5:10 PM
+ */
+
+package net.sf.jacinth.demo;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import net.sf.jacinth.modules.JacinthTag;
+import net.sf.jacinth.modules.Module;
+import net.sf.jacinth.util.Local;
+import net.sf.jacinth.AltHTMLWriter;
+import net.sf.jacinth.ObjectListener;
+import net.sf.jacinth.ObjectListenerEvent;
+
+import javax.swing.Action;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.border.BevelBorder;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+
+/**
+ * 
+ * @author alex
+ */
+public class App extends javax.swing.JFrame {
+    
+    private JLabel statusLabel = new JLabel(" ");
+
+    String filename = null;
+
+    //private HTMLEditorKit editorKit = new HTMLEditorKit();
+    
+    boolean documentSaved = false;
+    
+    /** Creates new form App */
+    public App(String f) {
+        initComponents();
+        initMenus();
+        if (f == null) {
+            newDocument(f);
+        }
+        else if (!load(f))
+          newDocument(f);
+    }
+    
+    boolean load(String fn) {        
+        if (maybeSave() == JOptionPane.CANCEL_OPTION)
+            return false;        
+        try {            
+            File file = new File(fn);
+            
+            if (!file.exists())
+                return false;
+            
+            StringBuffer str = new StringBuffer();
+            String line;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+            while ((line = reader.readLine()) != null)
+                str.append(line + System.getProperty("line.separator"));
+
+            editor.setDocumentBase(new URL("file", null, file.getAbsolutePath()));
+            editor.setDocumentHtml(str.toString());
+            filename = fn;
+            this.setTitle(filename);
+            documentSaved = false;
+            return true;
+        }
+        catch (Exception ex) {
+            /*JOptionPane.showMessageDialog(this,"File not found","File not found",
+                    JOptionPane.WARNING_MESSAGE);*/
+            ex.printStackTrace();
+            return false;
+        }
+    }
+    
+    int maybeSave() {
+        if (editor.isDocumentChanged() && !documentSaved) {            
+            int n = JOptionPane.showConfirmDialog(
+                    this,
+                    filename + " has been modified. Save changes?",
+                    "Save modified document",
+                    JOptionPane.YES_NO_CANCEL_OPTION);
+            if (n == JOptionPane.YES_OPTION) {
+                save();
+            }
+            return n; 
+        }
+        return -1;
+    }
+    
+    boolean save() {
+        try {
+            OutputStreamWriter fw =
+                new OutputStreamWriter(new FileOutputStream(filename), "UTF-8");
+            net.sf.jacinth.AltHTMLWriter writer = new net.sf.jacinth.AltHTMLWriter(fw, (HTMLDocument) editor.document);
+            writer.write();
+            fw.flush();
+            fw.close();
+            this.documentSaved = true;
+            return true;
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+    
+    boolean saveAs() {
+        final JFileChooser fc = new JFileChooser();
+        int n = fc.showSaveDialog(this);
+        if (n == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            filename = file.getPath();
+            save();
+            this.setTitle(filename);
+
+            // Set document base to the new location of the file.
+            try {
+                editor.setDocumentBase(new URL("file", null, file.getAbsolutePath()));
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
+            return true;
+        }
+        return false;
+    }
+    
+    boolean newDocument(String fn) {        
+        if (maybeSave() == JOptionPane.CANCEL_OPTION)
+            return false;
+        if (fn == null)
+            fn = "unknown";
+        filename = fn;
+        editor.setDocumentHtml("");
+        this.setTitle(filename);
+        return true;
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        editor = new net.sf.jacinth.HTMLEditor();
+        jPanel1 = new javax.swing.JPanel();
+        jToolBar1 = new javax.swing.JToolBar();
+        jToolBar2 = new javax.swing.JToolBar();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenuFile = new javax.swing.JMenu();
+        newMenuItem = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JSeparator();
+        openMenuItem = new javax.swing.JMenuItem();
+        jSeparator2 = new javax.swing.JSeparator();
+        saveMenuItem = new javax.swing.JMenuItem();
+        saveAsMenuItem = new javax.swing.JMenuItem();
+        jSeparator3 = new javax.swing.JSeparator();
+        quitMenuItem = new javax.swing.JMenuItem();
+        jMenuEdit = new javax.swing.JMenu();
+        jMenuFormat = new javax.swing.JMenu();
+        jMenuInsert = new javax.swing.JMenu();
+        jMenuHelp = new javax.swing.JMenu();
+        aboutMenuItem = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().add(editor, java.awt.BorderLayout.CENTER);
+
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
+        jToolBar1 = editor.getEditToolbar(this);
+        jPanel1.add(jToolBar1, java.awt.BorderLayout.NORTH);
+
+        jToolBar2 = editor.getFormatToolbar(this);
+        jPanel1.add(jToolBar2, java.awt.BorderLayout.SOUTH);
+
+        getContentPane().add(jPanel1, java.awt.BorderLayout.NORTH);
+
+        jMenuFile.setText(Local.getString("File"));
+        newMenuItem.setText(Local.getString("New"));
+        newMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newMenuItemActionPerformed(evt);
+            }
+        });
+        newMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
+
+        jMenuFile.add(newMenuItem);
+
+        jMenuFile.add(jSeparator1);
+
+        openMenuItem.setText(Local.getString("Open") + "...");
+        openMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openMenuItemActionPerformed(evt);
+            }
+        });
+        openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
+
+        jMenuFile.add(openMenuItem);
+
+        jMenuFile.add(jSeparator2);
+
+        saveMenuItem.setText(Local.getString("Save"));
+        saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveMenuItemActionPerformed(evt);
+            }
+        });
+        saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+
+        jMenuFile.add(saveMenuItem);
+
+        saveAsMenuItem.setText(Local.getString("Save as") + "...");
+        saveAsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveAsMenuItemActionPerformed(evt);
+            }
+        });
+
+        jMenuFile.add(saveAsMenuItem);
+
+        jMenuFile.add(jSeparator3);
+
+        quitMenuItem.setText(Local.getString("Quit"));
+        quitMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                quitMenuItemActionPerformed(evt);
+            }
+        });
+
+        jMenuFile.add(quitMenuItem);
+
+        jMenuBar1.add(jMenuFile);
+
+        jMenuEdit.setText(Local.getString("Edit"));
+        jMenuBar1.add(jMenuEdit);
+
+        jMenuFormat.setText(Local.getString("Format"));
+        jMenuBar1.add(jMenuFormat);
+
+        jMenuInsert.setText(Local.getString("Insert"));
+        jMenuBar1.add(jMenuInsert);
+
+        jMenuHelp.setText(Local.getString("Help"));
+        aboutMenuItem.setText(Local.getString("About") + "...");
+        aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                aboutMenuItemActionPerformed(evt);
+            }
+        });
+
+        jMenuHelp.add(aboutMenuItem);
+
+        jMenuBar1.add(jMenuHelp);
+
+        setJMenuBar(jMenuBar1);
+        
+        JPanel statusBar = new JPanel();
+        statusBar.setLayout(new BorderLayout());
+        statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        statusBar.add(statusLabel);
+        getContentPane().add(statusBar, BorderLayout.PAGE_END);
+
+        editor.addObjectListener(new ObjectListener(){
+            public void objectChanged(ObjectListenerEvent event) {
+                if (event.getModule() != null)
+                    statusLabel.setText(event.getModule().getDescription(event.getNewObject()));
+                else
+                    statusLabel.setText("");
+            }
+        });
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
+        JOptionPane.showMessageDialog(this,
+        "Jacinth Java HTML embeddable editor demo.\n"+
+        "http://jacinth.sf.net"+
+        "(c) Alex Alishevskikh"
+        );
+    }//GEN-LAST:event_aboutMenuItemActionPerformed
+
+    private void quitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitMenuItemActionPerformed
+        if (maybeSave() != JOptionPane.CANCEL_OPTION)
+            System.exit(0);
+    }//GEN-LAST:event_quitMenuItemActionPerformed
+
+    private void saveAsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsMenuItemActionPerformed
+        saveAs();
+    }//GEN-LAST:event_saveAsMenuItemActionPerformed
+
+    private void saveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveMenuItemActionPerformed
+        if (filename.equals("unknown")) 
+            saveAs();
+        else
+            save();
+    }//GEN-LAST:event_saveMenuItemActionPerformed
+
+    private void openMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuItemActionPerformed
+        final JFileChooser fc = new JFileChooser();
+        int n = fc.showOpenDialog(this);
+        if (n == JFileChooser.APPROVE_OPTION) {
+            load(fc.getSelectedFile().getPath());            
+        }
+    }//GEN-LAST:event_openMenuItemActionPerformed
+
+    private void newMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newMenuItemActionPerformed
+        newDocument(null);
+    }//GEN-LAST:event_newMenuItemActionPerformed
+
+    void initMenus() {
+        JMenuItem jMenuEditUndo = new JMenuItem(editor.undoAction);
+        JMenuItem jMenuEditRedo = new JMenuItem(editor.redoAction);
+        JMenuItem jMenuEditCut = new JMenuItem(editor.cutAction);
+        JMenuItem jMenuEditCopy = new JMenuItem(editor.copyAction);
+        JMenuItem jMenuEditPaste = new JMenuItem(editor.pasteAction);
+        JMenuItem jMenuEditPasteSpec = new JMenuItem(editor.stylePasteAction);
+        JMenuItem jMenuEditSelectAll = new JMenuItem(editor.selectAllAction);
+        // Since the menu is part of this instance we can use this for the component
+        JMenuItem jMenuEditFind = new JMenuItem(editor.getFindAction(this));
+        
+        JMenu jMenuInsertList = new JMenu();
+        JMenuItem jMenuInsertListUL = new JMenuItem(editor.ulAction);
+        JMenuItem jMenuInsertListOL = new JMenuItem(editor.olAction);
+        JMenuItem jMenuInsertBR = new JMenuItem(editor.breakAction);
+        JMenuItem jMenuInsertHR = new JMenuItem(editor.insertHRAction);
+        JMenuItem jMenuInsertChar = new JMenuItem(editor.insCharAction);
+        JMenu jMenuFormatPStyle = new JMenu();
+        JMenuItem jMenuFormatP = new JMenuItem(editor.new BlockAction(editor.T_P, ""));
+        JMenuItem jMenuFormatH1 = new JMenuItem(editor.new BlockAction(editor.T_H1, ""));
+        JMenuItem jMenuFormatH2 = new JMenuItem(editor.new BlockAction(editor.T_H2, ""));
+        JMenuItem jMenuFormatH3 = new JMenuItem(editor.new BlockAction(editor.T_H3, ""));
+        JMenuItem jMenuFormatH4 = new JMenuItem(editor.new BlockAction(editor.T_H4, ""));
+        JMenuItem jMenuFormatH5 = new JMenuItem(editor.new BlockAction(editor.T_H5, ""));
+        JMenuItem jMenuFormatH6 = new JMenuItem(editor.new BlockAction(editor.T_H6, ""));
+        JMenuItem jMenuFormatPRE = new JMenuItem(editor.new BlockAction(editor.T_PRE, ""));
+        JMenuItem jMenuFormatBLCQ = new JMenuItem(editor.new BlockAction(editor.T_BLOCKQ, ""));
+        JMenu jjMenuFormatChStyle = new JMenu();
+        JMenuItem jMenuFormatChNorm = new JMenuItem(editor.new InlineAction(editor.I_NORMAL, ""));
+        JMenuItem jMenuFormatChEM = new JMenuItem(editor.new InlineAction(editor.I_EM, ""));
+        JMenuItem jMenuFormatChSTRONG = new JMenuItem(editor.new InlineAction(editor.I_STRONG, ""));
+        JMenuItem jMenuFormatChCODE = new JMenuItem(editor.new InlineAction(editor.I_CODE, ""));
+        JMenuItem jMenuFormatChCite = new JMenuItem(editor.new InlineAction(editor.I_CITE, ""));
+        JMenuItem jMenuFormatChSUP = new JMenuItem(
+                editor.new InlineAction(editor.I_SUPERSCRIPT, ""));
+        JMenuItem jMenuFormatChSUB = new JMenuItem(editor.new InlineAction(editor.I_SUBSCRIPT, ""));
+        JMenuItem jMenuFormatChCustom = new JMenuItem(editor.new InlineAction(editor.I_CUSTOM, ""));
+        JMenuItem jMenuFormatChB = new JMenuItem(editor.boldAction);
+        JMenuItem jMenuFormatChI = new JMenuItem(editor.italicAction);
+        JMenuItem jMenuFormatChU = new JMenuItem(editor.underAction);
+        JMenu jMenuFormatAlign = new JMenu();
+        JMenuItem jMenuFormatAlignL = new JMenuItem(editor.lAlignAction);
+        JMenuItem jMenuFormatAlignC = new JMenuItem(editor.cAlignAction);
+        JMenuItem jMenuFormatAlignR = new JMenuItem(editor.rAlignAction);
+        JMenu jMenuFormatTable = new JMenu();
+        JMenuItem jMenuFormatTableInsR = new JMenuItem(editor.insertTableRowAction);
+        JMenuItem jMenuFormatTableInsC = new JMenuItem(editor.insertTableCellAction);
+        // Since the menu is part of this instance we can use this for the component
+        final JMenuItem jMenuFormatProperties = new JMenuItem(editor.getPropsAction(this));
+        jMenuEdit.setText(Local.getString("Edit"));
+        jMenuEditUndo.setText(Local.getString("Undo"));
+        jMenuEditUndo.setToolTipText(Local.getString("Undo"));
+        jMenuEditRedo.setText(Local.getString("Redo"));
+        jMenuEditRedo.setToolTipText(Local.getString("Redo"));
+        jMenuEditCut.setText(Local.getString("Cut"));
+        jMenuEditCut.setToolTipText(Local.getString("Cut"));
+        jMenuEditCopy.setText((String) Local.getString("Copy"));
+        jMenuEditCopy.setToolTipText(Local.getString("Copy"));
+        jMenuEditPaste.setText(Local.getString("Paste"));
+        jMenuEditPaste.setToolTipText(Local.getString("Paste"));
+        jMenuEditPasteSpec.setText(Local.getString("Paste special"));
+        jMenuEditPasteSpec.setToolTipText(Local.getString("Paste special"));
+        jMenuEditSelectAll.setText(Local.getString("Select all"));
+        jMenuEditFind.setText(Local.getString("Find & replace") + "...");
+        jMenuInsert.setText(Local.getString("Insert"));
+        jMenuInsertList.setText(Local.getString("List"));
+        jMenuInsertListUL.setText(Local.getString("Unordered"));
+        jMenuInsertListUL.setToolTipText(Local.getString("Insert Unordered"));
+        jMenuInsertListOL.setText(Local.getString("Ordered"));
+        jMenuInsertBR.setText(Local.getString("Line break"));
+        jMenuInsertHR.setText(Local.getString("Horizontal rule"));
+        jMenuInsertListOL.setToolTipText(Local.getString("Insert Ordered"));
+        jMenuInsertChar.setText(Local.getString("Special character") + "...");
+        jMenuInsertChar.setToolTipText(Local.getString("Insert Special character"));
+        jMenuFormat.setText(Local.getString("Format"));
+        jMenuFormatPStyle.setText(Local.getString("Paragraph style"));
+        jMenuFormatP.setText(Local.getString("Paragraph"));
+        jMenuFormatH1.setText(Local.getString("Header") + " 1");
+        jMenuFormatH2.setText(Local.getString("Header") + " 2");
+        jMenuFormatH3.setText(Local.getString("Header") + " 3");
+        jMenuFormatH4.setText(Local.getString("Header") + " 4");
+        jMenuFormatH5.setText(Local.getString("Header") + " 5");
+        jMenuFormatH6.setText(Local.getString("Header") + " 6");
+        jMenuFormatPRE.setText(Local.getString("Preformatted text"));
+        jMenuFormatBLCQ.setText(Local.getString("Blockquote"));
+        jjMenuFormatChStyle.setText(Local.getString("Character style"));
+        jMenuFormatChNorm.setText(Local.getString("Normal"));
+        jMenuFormatChEM.setText(Local.getString("Emphasis"));
+        jMenuFormatChSTRONG.setText(Local.getString("Strong"));
+        jMenuFormatChCODE.setText(Local.getString("Code"));
+        jMenuFormatChCite.setText(Local.getString("Cite"));
+        jMenuFormatChSUP.setText(Local.getString("Superscript"));
+        jMenuFormatChSUB.setText(Local.getString("Subscript"));
+        jMenuFormatChCustom.setText(Local.getString("Custom style") + "...");
+        jMenuFormatChB.setText(Local.getString("Bold"));
+        jMenuFormatChB.setToolTipText(Local.getString("Bold"));
+        jMenuFormatChI.setText(Local.getString("Italic"));
+        jMenuFormatChI.setToolTipText(Local.getString("Italic"));
+        jMenuFormatChU.setText(Local.getString("Underline"));
+        jMenuFormatChU.setToolTipText(Local.getString("Underline"));
+        jMenuFormatAlign.setText(Local.getString("Alignment"));
+        jMenuFormatAlignL.setText(Local.getString("Left"));
+        jMenuFormatAlignL.setToolTipText(Local.getString("Left"));
+        jMenuFormatAlignC.setText(Local.getString("Center"));
+        jMenuFormatAlignC.setToolTipText(Local.getString("Center"));
+        jMenuFormatAlignR.setText(Local.getString("Right"));
+        jMenuFormatAlignR.setToolTipText(Local.getString("Right"));
+        jMenuFormatTable.setText(Local.getString("Table"));
+        jMenuFormatTableInsR.setText(Local.getString("Insert row"));
+        jMenuFormatTableInsC.setText(Local.getString("Insert cell"));
+        jMenuFormatProperties.setText(Local.getString("Object properties") + "...");
+        jMenuFormatProperties.setToolTipText(Local.getString("Object properties"));
+        jMenuEdit.add(jMenuEditUndo);
+        jMenuEdit.add(jMenuEditRedo);
+        jMenuEdit.addSeparator();
+        jMenuEdit.add(jMenuEditCut);
+        jMenuEdit.add(jMenuEditCopy);
+        jMenuEdit.add(jMenuEditPaste);
+        jMenuEdit.add(jMenuEditPasteSpec);
+        jMenuEdit.addSeparator();
+        jMenuEdit.add(jMenuEditSelectAll);
+        jMenuEdit.addSeparator();
+        jMenuEdit.add(jMenuEditFind);
+
+        // For every module, create a menu entry
+        for (int i = 0; i < editor.getModules().size(); i++) {
+            final Module module = (Module) editor.getModules().get(i);
+            JMenuItem moduleMenuItem = new JMenuItem(module.getLocalizedMenuName());
+            moduleMenuItem.setIcon(module.getImageIcon());
+            moduleMenuItem.setToolTipText(module.getLocalizedTooltip());
+            moduleMenuItem.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    editor.addNewInstance(App.this, module);
+                }
+            });
+            jMenuInsert.add(moduleMenuItem);
+        }
+        jMenuInsert.add(jMenuInsertList);
+        // jMenuInsert.add(jMenuInsertSpecial);
+        jMenuInsertList.add(jMenuInsertListUL);
+        jMenuInsertList.add(jMenuInsertListOL);
+        jMenuInsert.addSeparator();
+        jMenuInsert.add(jMenuInsertBR);
+        jMenuInsert.add(jMenuInsertHR);
+        jMenuInsert.add(jMenuInsertChar);
+        jMenuFormat.add(jMenuFormatPStyle);
+        jMenuFormat.add(jjMenuFormatChStyle);
+        jMenuFormat.add(jMenuFormatAlign);
+        jMenuFormat.addSeparator();
+        jMenuFormat.add(jMenuFormatTable);
+        jMenuFormat.addSeparator();
+        jMenuFormat.add(jMenuFormatProperties);
+        jMenuFormatPStyle.add(jMenuFormatP);
+        jMenuFormatPStyle.addSeparator();
+        jMenuFormatPStyle.add(jMenuFormatH1);
+        jMenuFormatPStyle.add(jMenuFormatH2);
+        jMenuFormatPStyle.add(jMenuFormatH3);
+        jMenuFormatPStyle.add(jMenuFormatH4);
+        jMenuFormatPStyle.add(jMenuFormatH5);
+        jMenuFormatPStyle.add(jMenuFormatH6);
+        jMenuFormatPStyle.addSeparator();
+        jMenuFormatPStyle.add(jMenuFormatPRE);
+        jMenuFormatPStyle.add(jMenuFormatBLCQ);
+        jjMenuFormatChStyle.add(jMenuFormatChNorm);
+        jjMenuFormatChStyle.addSeparator();
+        jjMenuFormatChStyle.add(jMenuFormatChB);
+        jjMenuFormatChStyle.add(jMenuFormatChI);
+        jjMenuFormatChStyle.add(jMenuFormatChU);
+        jjMenuFormatChStyle.addSeparator();
+        jjMenuFormatChStyle.add(jMenuFormatChEM);
+        jjMenuFormatChStyle.add(jMenuFormatChSTRONG);
+        jjMenuFormatChStyle.add(jMenuFormatChCODE);
+        jjMenuFormatChStyle.add(jMenuFormatChCite);
+        jjMenuFormatChStyle.addSeparator();
+        jjMenuFormatChStyle.add(jMenuFormatChSUP);
+        jjMenuFormatChStyle.add(jMenuFormatChSUB);
+        jjMenuFormatChStyle.addSeparator();
+        jjMenuFormatChStyle.add(jMenuFormatChCustom);
+        jMenuFormatAlign.add(jMenuFormatAlignL);
+        jMenuFormatAlign.add(jMenuFormatAlignC);
+        jMenuFormatAlign.add(jMenuFormatAlignR);
+        jMenuFormatTable.add(jMenuFormatTableInsR);
+        jMenuFormatTable.add(jMenuFormatTableInsC);
+    }
+
+    /**
+     * @param args
+     *            the command line arguments
+     */
+    public static void main(String args[]) {
+        final String f;
+        if (args.length > 1)
+            f = args[1];
+        else f = null;
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new App(f).setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem aboutMenuItem;
+    private net.sf.jacinth.HTMLEditor editor;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenu jMenuEdit;
+    private javax.swing.JMenu jMenuFile;
+    private javax.swing.JMenu jMenuFormat;
+    private javax.swing.JMenu jMenuHelp;
+    private javax.swing.JMenu jMenuInsert;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JSeparator jSeparator3;
+    private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JToolBar jToolBar2;
+    private javax.swing.JMenuItem newMenuItem;
+    private javax.swing.JMenuItem openMenuItem;
+    private javax.swing.JMenuItem quitMenuItem;
+    private javax.swing.JMenuItem saveAsMenuItem;
+    private javax.swing.JMenuItem saveMenuItem;
+    // End of variables declaration//GEN-END:variables
+}

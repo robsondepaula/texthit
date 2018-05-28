@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+    Document   : HypertextAuthoringModel.xsd
+    Created on : 23 de Junho de 2006, 12:09
+    Author     : Antônio Robson de Paula <depaula@dca.fee.unicamp.br>
+    Description:
+        This XML document proposes a valid HypertextAuthoringToolModel XML file.
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="qualified">
+    
+    <xsd:element name="hypertextMap" type="HypertextMapType">
+        <xsd:unique name="node-title-uniqueness">
+            <xsd:selector xpath="node"/>
+            <xsd:field    xpath="title"/>
+        </xsd:unique>
+        
+        <xsd:unique name="readingPath-name-uniqueness">
+            <xsd:selector xpath="*"/>
+            <xsd:field xpath="@readingPathName"/>
+        </xsd:unique>
+    </xsd:element>
+    
+    <xsd:element name="EmptyIsUnacceptable" type="requiredString"/>
+    <xsd:simpleType name="requiredString">
+        <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:element name="ColorRange" type="colorRange"/>
+    <xsd:simpleType name="colorRange">
+        <xsd:restriction base="xsd:nonNegativeInteger">
+            <xsd:minInclusive value="0"/>
+            <xsd:maxInclusive value="255"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="HypertextMapType">
+        <xsd:sequence>
+            <xsd:element name="node" type="NodeType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="link" type="LinkType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="readingPath" type="ReadingPathType" minOccurs="0" maxOccurs="unbounded">
+                <xsd:unique name="readingPath-nodeIndex-uniqueness">
+                    <xsd:selector xpath="pathNode"/>
+                    <xsd:field xpath="@pathNodeIndex"/>
+                </xsd:unique>
+            </xsd:element>
+            <xsd:element name="mapDescription" type="requiredString" minOccurs="1" maxOccurs="1"/>
+            <xsd:element name="perspective" type="PerspectiveType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="NodeType">
+        <xsd:sequence>
+            <xsd:element name="title"    type="requiredString"/>
+            <xsd:element name="url"   type="requiredString"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="LinkType">
+        <xsd:sequence>
+            <xsd:element name="sourceNodeTitle"    type="requiredString"/>
+            <xsd:element name="targetNodeTitle"   type="requiredString"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="ReadingPathType">
+        <xsd:sequence>
+            <xsd:element name="pathNode"   minOccurs="0" maxOccurs="unbounded">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="pathNodeTitle"    type="requiredString"/>
+                        <xsd:element name="pathNodeURL"   type="requiredString"/>
+                    </xsd:sequence> 
+                    <xsd:attribute name="pathNodeIndex" type="xsd:nonNegativeInteger" use="required"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="readingPathName" type="requiredString" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="PerspectiveType">
+        <xsd:sequence>
+            <xsd:element name="perspectiveLabel"    type="requiredString"/>
+            <xsd:element name="perspectiveColor"   minOccurs="1" maxOccurs="1">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="r"   type="colorRange"/>
+                        <xsd:element name="g"   type="colorRange"/>
+                        <xsd:element name="b"   type="colorRange"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>

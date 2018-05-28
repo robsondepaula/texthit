@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+    Document   : HypertextAuthoringConfig.xsd
+    Created on : 7 de Julho de 2007, 09:45
+    Author     : Antônio Robson de Paula <depaula@dca.fee.unicamp.br>
+    Description:
+        This XML document proposes a valid HypertextAuthoringToolConfig XML file.
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="qualified">
+    
+    <xsd:element name="toolConfig" type="ToolConfigType" />
+    
+    <xsd:element name="EmptyIsUnacceptable" type="requiredString"/>
+    <xsd:simpleType name="requiredString">
+        <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:complexType name="ToolConfigType">
+        <xsd:sequence>
+            <xsd:element name="publisherServerIPAddress" type="requiredString" minOccurs="1" maxOccurs="1"/>
+            <xsd:element name="publisherServerLogin" type="requiredString" minOccurs="1" maxOccurs="1"/>
+            <xsd:element name="publisherServerPath" type="requiredString" minOccurs="1" maxOccurs="1"/>
+        </xsd:sequence>
+    </xsd:complexType>  
+</xsd:schema>
