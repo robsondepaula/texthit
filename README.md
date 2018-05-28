@@ -18,4 +18,4 @@ This project is licensed under the GPL v3 License - see the [LICENSE.md](LICENSE
 
 ## Acknowledgments
 
-* To the [Jacinth](http://blog.cyberborean.org/2006/10/17/jacinth) project used as component on TEXTHIT
+* To the [Jacinth](https://sourceforge.net/projects/jacinth/) project used as component on TEXTHIT
